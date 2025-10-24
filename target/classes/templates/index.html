@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+</head>
+<body>
+<h1>Онлайн-калькулятор</h1>
+
+<form action="/calc" method="post">
+    <input type="text" name="expression" placeholder="Введіть вираз (напр. 2+2*3)">
+    <button type="submit">Обчислити</button>
+</form>
+
+<p th:if="${result}">Результат: <b th:text="${result}"></b></p>
+<p th:if="${error}" style="color:red" th:text="${error}"></p>
+</body>
+</html>
