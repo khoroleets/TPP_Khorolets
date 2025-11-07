@@ -1,0 +1,14 @@
+# "services:"
+services:
+  # "postgres:"
+  postgres:
+    # "image:", "environment:", "labels:", "ports:"
+    image: "pgvector/pgvector:pg16"
+    environment:
+      - "POSTGRES_DB=travel_agency"
+      - "POSTGRES_PASSWORD=1"
+      - "POSTGRES_USER=postgres"
+    labels:
+      - "org.springframework.boot.service-connection=postgres"
+    ports:
+      - "5933:5432"

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат SQL</title>
+    <style>
+        table { border-collapse: collapse; }
+        table, th, td { border: 1px solid black; padding: 4px; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+
+<h2>Результат</h2>
+
+<p th:text="${message}">Повідомлення про статус...</p>
+
+<hr/>
+
+<div th:unless="${results == null or results.isEmpty()}">
+    <table>
+        <thead>
+        <tr th:with="columnNames=${results[0].keySet()}">
+            <th th:each="colName : ${columnNames}" th:text="${colName}">
+                Назва Колонки
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${results}">
+            <td th:each="colName : ${results[0].keySet()}" 
+                th:text="${row.get(colName)}">
+                Значення
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<hr/>
+<a href="/sql">Назад</a>
+
+</body>
+</html>
