@@ -1,254 +1,274 @@
 package travel;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import travel.Model.Country;
+import travel.Model.Offer;
+import travel.Model.TravelType;
+import travel.Repository.CountryRepository;
+import travel.Repository.OfferRepository;
+import travel.Repository.TravelTypeRepository;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class CliApp implements CommandLineRunner {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private CountryRepository countryRepository;
+
+    @Autowired
+    private OfferRepository offerRepository;
+
+    @Autowired
+    private TravelTypeRepository travelTypeRepository;
+
+    private final Map<String, Class<?>> entityMap = Map.of(
+            "country", Country.class,
+            "offer", Offer.class,
+            "traveltype", TravelType.class
+    );
 
     @Override
-    public void run(String... args) throws Exception {
-        System.out.println("\n\n--- ЗАПУСК КОНСОЛЬНОГО ДОДАТКУ ---");
+    public void run(String... args) {
+        System.out.println("\n--- CLI APP STARTED ---");
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
                 System.out.print("> ");
-                String line = scanner.nextLine();
+                String line = scanner.nextLine().trim();
+                if (line.isEmpty()) continue;
+                if ("exit".equalsIgnoreCase(line)) break;
 
-                if ("exit".equalsIgnoreCase(line)) {
-                    System.out.println("--- ЗАВЕРШЕННЯ КОНСОЛЬНОГО ДОДАТКУ ---");
-                    break;
-                }
-                
                 try {
                     executeCommand(line);
                 } catch (Exception e) {
                     System.err.println("Помилка: " + e.getMessage());
-                    // e.printStackTrace(); 
                 }
             }
         }
+        System.out.println("--- CLI APP FINISHED ---");
     }
 
     private void executeCommand(String line) throws Exception {
-        if (line == null || line.trim().isEmpty()) {
-            return;
-        }
-
+        int spaceIndex = line.indexOf(" ");
         String command;
-        String table;
-        String paramsString;
-        
-        try {
-            command = line.substring(0, line.indexOf(" ")).trim().toLowerCase();
-            table = line.substring(line.indexOf(" ") + 1, line.indexOf("(")).trim();
-            paramsString = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")")).trim();
-        } catch (Exception e) {
-            throw new Exception("Невірний формат команди. Очікується: command table(...)");
+        String entityPart;
+        String paramsPart = "";
+
+        if (spaceIndex == -1) {
+            command = line.toLowerCase();
+            entityPart = "";
+        } else {
+            command = line.substring(0, spaceIndex).toLowerCase();
+            entityPart = line.substring(spaceIndex + 1).trim();
         }
 
-        Map<String, Object> params = parseParams(paramsString);
+        // Отримуємо назву сутності та параметри
+        String entityName;
+        if (entityPart.contains("(")) {
+            entityName = entityPart.substring(0, entityPart.indexOf("(")).toLowerCase();
+            paramsPart = entityPart.substring(entityPart.indexOf("(") + 1, entityPart.lastIndexOf(")")).trim();
+        } else {
+            entityName = entityPart.toLowerCase();
+        }
+
+        Map<String, String> paramMap = parseParams(paramsPart);
 
         switch (command) {
-            case "insert":
-                handleInsert(table, params);
-                break;
-            case "read":
-                handleRead(table, params);
-                break;
-            case "update":
-                handleUpdate(table, params);
-                break;
-            case "delete":
-                handleDelete(table, params);
-                break;
-            default:
-                System.err.println("Невідома команда: " + command);
+            case "insert" -> handleInsert(entityName, paramMap);
+            case "read" -> handleRead(entityName, paramMap);
+            case "update" -> handleUpdate(entityName, paramMap);
+            case "delete" -> handleDelete(entityName, paramMap);
+            default -> System.out.println("Unknown command. Use: read|insert|update|delete <entity>");
         }
     }
 
-    /**
-     * Парсинг
-     */
-    private Object autoParseValue(String value) {
-        // 1. Спроба спарсити як Boolean
-        if ("true".equalsIgnoreCase(value)) return true;
-        if ("false".equalsIgnoreCase(value)) return false;
-
-        // 2. Спроба спарсити як Integer
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e1) { /* не int */ }
-        
-        // 3. Спроба спарсити як Double
-        try {
-            return Double.parseDouble(value);
-        } catch (NumberFormatException e2) { /* не double */ }
-        
-        // 4. Спроба спарсити як Дату (LocalDate)
-        // (Проста перевірка, щоб не намагатися парсити "Тест" як дату)
-        if (value.contains("-") && value.length() == 10) {
-            try {
-                return LocalDate.parse(value);
-            } catch (DateTimeParseException e3) { /* не дата */ }
-        }
-
-        // 5. Якщо нічого не вийшло - це String
-        return value; 
-    }
-
-    /**
-     * Парсер, повертає Map<String, Object>
-     */
-    private Map<String, Object> parseParams(String paramsString) throws Exception {
-        Map<String, Object> params = new LinkedHashMap<>();
-        if (paramsString == null || paramsString.isEmpty()) {
-            return params;
-        }
-        
-        // 1️. Користувач вводить команду, наприклад:
-        //     insert country(name="SELECT * FROM offer WHERE title = '' OR '1'='1';", iso_code=US)
-        //    Текст між дужками (...) зберігається у paramsString.
-        //
-        // 2️. Ми розбиваємо цей текст за комами, щоб отримати пари параметрів:
-        //     ["name=\"SELECT * FROM offer WHERE title = '' OR '1'='1';\"", " iso_code=US"]
-        //
-        // 3️. Далі кожну пару розбиваємо по знаку '=':
-        //     pair.split("=")
-        //
-        //    Але якщо у значенні є додатковий знак '=' усередині лапок,
-        //    наприклад у SQL-рядках, це може створити більше ніж 2 частини
-        //    і викликати помилку "Очікується key=value".
-        //
-        // 4️. Якщо split() не повернув рівно дві частини (key і value),
-        //     ми викидаємо помилку формату.
-        //
-        // 5️. Якщо формат правильний, видаляємо зайві пробіли й викликаємо
-        //     autoParseValue(valueString) — щоб автоматично визначити тип:
-        //     число, дата, логічне або рядок.
-        //
-        // 6️. У кінці додаємо пару key -> value до колекції params.
-        //
-        // 7️. Метод повертає готову Map<String, Object> для подальшого
-        //     використання у SQL-командах (insert, update, тощо).
+    private Map<String, String> parseParams(String paramsString) {
+        Map<String, String> params = new LinkedHashMap<>();
+        if (paramsString == null || paramsString.isEmpty()) return params;
 
         String[] pairs = paramsString.split(",");
         for (String pair : pairs) {
-            String[] kv = pair.split("=");
-            if (kv.length != 2) {
-                throw new Exception("Невірний формат параметра: '" + pair + "'. Очікується 'key=value'.");
+            String[] kv = pair.split("=", 2);
+            if (kv.length == 2) {
+                params.put(kv[0].trim(), kv[1].trim().replaceAll("^\"|\"$", ""));
             }
-            String key = kv[0].trim();
-            String valueString = kv[1].trim();
-            
-            params.put(key, autoParseValue(valueString));
         }
         return params;
     }
 
-    // --- Методи handleInsert, handleRead, handleUpdate, handleDelete ---
-    // --- Вони вже коректно працюють з Map<String, Object> ---
-
-    private void handleInsert(String table, Map<String, Object> params) throws Exception {
-        if (params.isEmpty()) {
-            throw new Exception("Insert вимагає принаймні один параметр.");
+    // --- INSERT ---
+    private void handleInsert(String entityName, Map<String, String> params) {
+        switch (entityName) {
+            case "country" -> {
+                Country country = new Country(
+                        null,
+                        params.get("name"),
+                        params.get("isoCode"),
+                        LocalDateTime.now()
+                );
+                countryRepository.save(country);
+                System.out.println("Inserted: " + country);
+            }
+            case "traveltype" -> {
+                TravelType type = new TravelType(
+                        null,
+                        params.get("name"),
+                        params.get("description"),
+                        LocalDateTime.now()
+                );
+                travelTypeRepository.save(type);
+                System.out.println("Inserted: " + type);
+            }
+            case "offer" -> {
+                Offer offer = new Offer(
+                        null,
+                        params.get("title"),
+                        params.get("description"),
+                        parseInt(params.get("travelTypeId")),
+                        parseInt(params.get("countryId")),
+                        parseBigDecimal(params.get("price")),
+                        parseDate(params.get("startDate")),
+                        parseDate(params.get("endDate")),
+                        parseInt(params.get("seats")),
+                        parseBoolean(params.get("available")),
+                        LocalDateTime.now()
+                );
+                offerRepository.save(offer);
+                System.out.println("Inserted: " + offer);
+            }
+            default -> System.out.println("Unknown entity: " + entityName);
         }
-
-        String columns = String.join(", ", params.keySet());
-        String placeholders = String.join(", ", Collections.nCopies(params.size(), "?"));
-        String sql = "INSERT INTO " + table + " (" + columns + ") VALUES (" + placeholders + ")";
-
-        Object[] args = params.values().toArray();
-        
-        int rows = jdbcTemplate.update(sql, args);
-        System.out.println("OK. Додано рядків: " + rows);
     }
 
-    private void handleRead(String table, Map<String, Object> params) {
-        String sql;
-        Object[] args;
-
-        if (params.isEmpty()) {
-            sql = "SELECT * FROM " + table;
-            args = new Object[0];
-        } else if (params.containsKey("id") && params.size() == 1) {
-            Object idObj = params.get("id");
-            if (!(idObj instanceof Integer)) {
-                System.err.println("Помилка: ID '" + idObj + "' має бути цілим числом.");
-                return;
+    // --- READ ---
+    private void handleRead(String entityName, Map<String, String> params) {
+        switch (entityName) {
+            case "country" -> {
+                if (params.containsKey("id")) {
+                    countryRepository.findById(parseInt(params.get("id"))).ifPresent(System.out::println);
+                } else {
+                    countryRepository.findAll().forEach(System.out::println);
+                }
             }
-            sql = "SELECT * FROM " + table + " WHERE id = ?";
-            args = new Object[]{idObj}; 
-        } else {
-            System.err.println("Read підтримує лише 'read table()' або 'read table(id=...)'");
+            case "traveltype" -> {
+                if (params.containsKey("id")) {
+                    travelTypeRepository.findById(parseInt(params.get("id"))).ifPresent(System.out::println);
+                } else {
+                    travelTypeRepository.findAll().forEach(System.out::println);
+                }
+            }
+            case "offer" -> {
+                if (params.containsKey("id")) {
+                    offerRepository.findById(parseInt(params.get("id"))).ifPresent(System.out::println);
+                } else {
+                    offerRepository.findAll().forEach(System.out::println);
+                }
+            }
+            default -> System.out.println("Unknown entity: " + entityName);
+        }
+    }
+
+    // --- UPDATE ---
+    private void handleUpdate(String entityName, Map<String, String> params) {
+        if (!params.containsKey("id")) {
+            System.out.println("Update requires id parameter");
             return;
         }
+        Integer id = parseInt(params.remove("id"));
 
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, args);
-        
-        if (results.isEmpty()) {
-            System.out.println("Таблиця '" + table + "' порожня або запис не знайдено.");
-        } else {
-            results.forEach(System.out::println);
+        switch (entityName) {
+            case "country" -> {
+                countryRepository.findById(id).ifPresent(country -> {
+                    Country updated = new Country(
+                            country.id(),
+                            params.getOrDefault("name", country.name()),
+                            params.getOrDefault("isoCode", country.isoCode()),
+                            country.createdAt()
+                    );
+                    countryRepository.save(updated);
+                    System.out.println("Updated: " + updated);
+                });
+            }
+            case "traveltype" -> {
+                travelTypeRepository.findById(id).ifPresent(type -> {
+                    TravelType updated = new TravelType(
+                            type.id(),
+                            params.getOrDefault("name", type.name()),
+                            params.getOrDefault("description", type.description()),
+                            type.createdAt()
+                    );
+                    travelTypeRepository.save(updated);
+                    System.out.println("Updated: " + updated);
+                });
+            }
+            case "offer" -> {
+                offerRepository.findById(id).ifPresent(offer -> {
+                    Offer updated = new Offer(
+                            offer.id(),
+                            params.getOrDefault("title", offer.title()),
+                            params.getOrDefault("description", offer.description()),
+                            params.containsKey("travelTypeId") ? parseInt(params.get("travelTypeId")) : offer.travelTypeId(),
+                            params.containsKey("countryId") ? parseInt(params.get("countryId")) : offer.countryId(),
+                            params.containsKey("price") ? parseBigDecimal(params.get("price")) : offer.price(),
+                            params.containsKey("startDate") ? parseDate(params.get("startDate")) : offer.startDate(),
+                            params.containsKey("endDate") ? parseDate(params.get("endDate")) : offer.endDate(),
+                            params.containsKey("seats") ? parseInt(params.get("seats")) : offer.seats(),
+                            params.containsKey("available") ? parseBoolean(params.get("available")) : offer.available(),
+                            offer.createdAt()
+                    );
+                    offerRepository.save(updated);
+                    System.out.println("Updated: " + updated);
+                });
+            }
+            default -> System.out.println("Unknown entity: " + entityName);
         }
     }
 
-    private void handleUpdate(String table, Map<String, Object> params) throws Exception {
-        Object idObj = params.remove("id");
-
-        if (idObj == null) {
-            throw new Exception("Update вимагає параметр 'id=...'.");
+    // --- DELETE ---
+    private void handleDelete(String entityName, Map<String, String> params) {
+        if (!params.containsKey("id")) {
+            System.out.println("Delete requires id parameter");
+            return;
         }
-        if (!(idObj instanceof Integer)) {
-            throw new Exception("Помилка: ID '" + idObj + "' має бути цілим числом.");
+        Integer id = parseInt(params.get("id"));
+        switch (entityName) {
+            case "country" -> {
+                countryRepository.deleteById(id);
+                System.out.println("Deleted country with id=" + id);
+            }
+            case "traveltype" -> {
+                travelTypeRepository.deleteById(id);
+                System.out.println("Deleted travelType with id=" + id);
+            }
+            case "offer" -> {
+                offerRepository.deleteById(id);
+                System.out.println("Deleted offer with id=" + id);
+            }
+            default -> System.out.println("Unknown entity: " + entityName);
         }
-        if (params.isEmpty()) {
-            throw new Exception("Update вимагає хоча б один параметр для оновлення (напр., 'name=NewName').");
-        }
-
-        String setClause = params.keySet().stream()
-                .map(key -> key + " = ?")
-                .collect(Collectors.joining(", "));
-
-        String sql = "UPDATE " + table + " SET " + setClause + " WHERE id = ?";
-
-        List<Object> args = new ArrayList<>(params.values());
-        args.add(idObj); 
-
-        int rows = jdbcTemplate.update(sql, args.toArray());
-        System.out.println("OK. Оновлено рядків: " + rows);
     }
 
-    private void handleDelete(String table, Map<String, Object> params) throws Exception {
-        if (!params.containsKey("id") || params.size() > 1) {
-            throw new Exception("Delete вимагає рівно один параметр: 'id=...'.");
-        }
+    // --- HELPERS ---
+    private Integer parseInt(String s) {
+        return s == null ? null : Integer.parseInt(s);
+    }
 
-        Object idObj = params.get("id");
-        if (!(idObj instanceof Integer)) {
-            throw new Exception("Помилка: ID '" + idObj + "' має бути цілим числом.");
-        }
+    private BigDecimal parseBigDecimal(String s) {
+        return s == null ? null : new BigDecimal(s);
+    }
 
-        String sql = "DELETE FROM " + table + " WHERE id = ?";
-        int rows = jdbcTemplate.update(sql, idObj); 
-        
-        if (rows > 0) {
-            System.out.println("OK. Видалено рядків: " + rows);
-        } else {
-            System.out.println("Запис з id=" + idObj + " не знайдено.");
-        }
+    private LocalDate parseDate(String s) {
+        return s == null ? null : LocalDate.parse(s);
+    }
+
+    private Boolean parseBoolean(String s) {
+        return s == null ? null : Boolean.parseBoolean(s);
     }
 }
