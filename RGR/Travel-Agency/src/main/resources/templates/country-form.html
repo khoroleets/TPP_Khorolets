@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редагування Країни</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2 th:text="${country.id() == null} ? 'Нова Країна' : 'Редагувати Країну'"></h2>
+
+        <form th:action="@{/admin/countries/save}" th:object="${country}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div>
+                <label>Назва:</label>
+                <input type="text" th:field="*{name}" required />
+            </div>
+            <div>
+                <label>ISO Код (2 літери):</label>
+                <input type="text" th:field="*{isoCode}" maxlength="2" required />
+            </div>
+
+            <br>
+            <button type="submit" class="button">Зберегти</button>
+            <a th:href="@{/countries}" class="button" style="background-color: #aaa;">Скасувати</a>
+        </form>
+    </div>
+</body>
+</html>

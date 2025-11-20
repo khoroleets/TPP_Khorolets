@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Всі країни</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Список країн</h1>
+
+        <div sec:authorize="hasRole('ADMIN')" style="margin-bottom: 15px;">
+            <a th:href="@{/admin/countries/form}" class="button admin-button">+ Додати країну</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва</th>
+                    <th>ISO Код</th>
+                    <th sec:authorize="hasRole('ADMIN')">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="country : ${allCountries}">
+                    <td th:text="${country.id()}">1</td>
+                    <td th:text="${country.name()}">Україна</td>
+                    <td th:text="${country.isoCode()}">UA</td>
+                    
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/countries/form(id=${country.id()})}" class="button" style="font-size: 0.8em;">Оновити</a>
+                        
+                        <form th:action="@{/admin/countries/delete/{id}(id=${country.id()})}" method="post" style="display:inline;"
+                              onsubmit="return confirm('Ви дійсно хочете видалити цей запис?');">
+                            <button type="submit" class="button admin-button" style="font-size: 0.8em; background-color: #dc3545;">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br>
+        <a th:href="@{/}" class="button">На головну</a>
+    </div>
+</body>
+</html>

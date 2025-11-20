@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редагування Пропозиції</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2 th:text="${offer.id() == null} ? 'Нова Пропозиція' : 'Редагувати Пропозицію'"></h2>
+
+        <form th:action="@{/admin/offers/save}" th:object="${offer}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div>
+                <label>Назва туру:</label>
+                <input type="text" th:field="*{title}" required />
+            </div>
+            
+            <div>
+                <label>Опис:</label>
+                <textarea th:field="*{description}" rows="3"></textarea>
+            </div>
+
+            <div>
+                <label>Країна:</label>
+                <select th:field="*{countryId}" required>
+                    <option th:each="c : ${countries}" 
+                            th:value="${c.id()}" 
+                            th:text="${c.name()}">Україна</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Тип подорожі:</label>
+                <select th:field="*{travelTypeId}" required>
+                    <option th:each="t : ${travelTypes}" 
+                            th:value="${t.id()}" 
+                            th:text="${t.name()}">Пляжний</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Ціна:</label>
+                <input type="number" step="0.01" th:field="*{price}" required />
+            </div>
+
+            <div>
+                <label>Дата початку:</label>
+                <input type="date" th:field="*{startDate}" />
+            </div>
+
+            <div>
+                <label>Дата кінця:</label>
+                <input type="date" th:field="*{endDate}" />
+            </div>
+
+            <div>
+                <label>Кількість місць:</label>
+                <input type="number" th:field="*{seats}" />
+            </div>
+            
+             <div>
+                <label>Доступно:</label>
+                <input type="checkbox" th:field="*{available}" />
+            </div>
+
+            <br>
+            <button type="submit" class="button">Зберегти</button>
+            <a th:href="@{/offers}" class="button" style="background-color: #aaa;">Скасувати</a>
+        </form>
+    </div>
+</body>
+</html>

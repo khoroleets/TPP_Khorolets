@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL Виконавець</title>
+    <style>
+        input[type="submit"]:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Введіть SQL-запит</h2>
+
+<form id="sqlForm" th:action="@{/execute-sql}" method="post">
+    <textarea name="rawSql" rows="5" cols="70"></textarea>
+    <br/>
+    <input id="submitBtn" type="submit" value="Виконати"/>
+</form>
+
+<br><br>
+<a th:href="@{/}" class="button">На головну</a>
+
+<script>
+    document.getElementById('sqlForm').addEventListener('submit', function () {
+        var submitButton = document.getElementById('submitBtn');
+        submitButton.disabled = true;
+        submitButton.value = 'Виконується...';
+    });
+</script>
+
+</body>
+</html>

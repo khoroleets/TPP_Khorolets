@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Всі пропозиції</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Список гарячих пропозицій</h1>
+        
+        <div sec:authorize="hasRole('ADMIN')" style="margin-bottom: 15px;">
+            <a th:href="@{/admin/offers/form}" class="button admin-button">+ Додати пропозицію</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th>Ціна</th>
+                    <th>Дата</th>
+                    <th>Місць</th>
+                    <th sec:authorize="hasRole('ADMIN')">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="offer : ${allOffers}">
+                    <td th:text="${offer.title()}">Сонячний берег</td>
+                    <td th:text="${offer.description()}">Все включено</td>
+                    <td th:text="${offer.price()}">599.00</td>
+                    <td th:text="${offer.startDate()}">2026-06-01</td>
+                    <td th:text="${offer.seats()}">30</td>
+                    
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/offers/form(id=${offer.id()})}" class="button" style="font-size: 0.8em;">Оновити</a>
+                        <form th:action="@{/admin/offers/delete/{id}(id=${offer.id()})}" method="post" style="display:inline;"
+                              onsubmit="return confirm('Видалити цю пропозицію?');">
+                            <button type="submit" class="button admin-button" style="font-size: 0.8em; background-color: #dc3545;">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br>
+        <a th:href="@{/}" class="button">На головну</a>
+    </div>
+</body>
+</html>

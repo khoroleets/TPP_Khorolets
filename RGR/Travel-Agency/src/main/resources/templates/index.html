@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Travel Agency</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+</head>
+<body>
+  <!-- Літак -->
+  <div class="plane-fullscreen">
+        <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+        <dotlottie-wc src="https://lottie.host/4ff0af50-07f6-443c-bd96-2449e4339bef/aleAc2SC1M.lottie"
+                      autoplay loop></dotlottie-wc>
+    </div>
+
+  <!-- Основний контент -->
+  <div class="container">
+    <h1>Вітаємо у Туристичній Агенції!</h1>
+    <div sec:authorize="!isAuthenticated()">
+      <p>Це головна сторінка. Будь ласка, <a th:href="@{/login}">увійдіть</a>.</p>
+    </div>
+
+    <div sec:authorize="isAuthenticated()">
+      <p>
+        Ви увійшли як <b sec:authentication="name">Username</b>
+        з роллю: <b sec:authentication="principal.authorities">[ROLE]</b>.
+      </p>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit">Вийти</button>
+      </form>
+      <hr>
+      <h3>Меню</h3>
+      <ul class="button-list">
+        <li sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
+          <a th:href="@{/travel-types}" class="button">Тури</a>
+        </li>
+        <li sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
+          <a th:href="@{/countries}" class="button">Країни</a>
+        </li>
+        <li sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
+          <a th:href="@{/offers}" class="button">Пропозиції</a>
+        </li>
+        <li sec:authorize="hasAuthority('ROLE_ADMIN')" style="margin-top: 15px;">
+          <a th:href="@{/sql}" class="button admin-button">Керування SQL (ADMIN)</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+ <script>
+  // Перевіряємо, чи користувач уже бачив літак у цьому сеансі
+  const plane = document.querySelector('.plane-fullscreen');
+
+  if (sessionStorage.getItem('visited') === 'true') {
+    // якщо вже бачив — ховаємо
+    if (plane) plane.style.display = 'none';
+  } else {
+    // якщо вперше — показуємо літак і запам’ятовуємо
+    if (plane) {
+      plane.addEventListener('animationend', () => {
+        sessionStorage.setItem('visited', 'true');
+      });
+    }
+  }
+</script>
+
+  
+</body>
+</html>

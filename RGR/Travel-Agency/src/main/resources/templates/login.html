@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Agency</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2>Вхід у систему</h2>
+        
+        <div th:if="${param.error}" class="error">
+            Неправильне ім'я користувача або пароль.
+        </div>
+        
+        <div th:if="${param.logout}" class="success">
+            Ви успішно вийшли з системи.
+        </div>
+        
+        <form th:action="@{/login}" method="post">
+            <div>
+                <label for="username">Логін:</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <button type="submit">Увійти</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

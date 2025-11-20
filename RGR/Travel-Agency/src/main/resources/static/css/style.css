@@ -1,0 +1,146 @@
+form {
+  text-align: center;
+}
+
+form label {
+  display: inline-block;
+  width: 80px;
+  text-align: right;
+  margin-right: 5px;
+}
+
+form input {
+  margin-bottom: 10px; 
+  padding: 5px;
+}
+
+form button {
+  margin-top: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* --- Фон --- */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  overflow-x: hidden;
+}
+
+/* --- Контейнер контенту --- */
+.container {
+  max-width: 700px;
+  margin: 100px auto;
+  background: rgba(255, 255, 255, 0.85);
+  color: #222;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+h1 {
+  color: #00796b;
+  text-shadow: none;
+}
+
+/* --- Кнопки --- */
+.button {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.admin-button {
+  background-color: #dc3545;
+}
+
+.admin-button:hover {
+  background-color: #b31b27;
+}
+
+/* --- Список кнопок --- */
+.button-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.button-list li {
+  margin-bottom: 10px;
+}
+
+/* --- Таблиці --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+thead th {
+  background-color: #f2f2f2;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* --- Літак --- */
+.plane-fullscreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeOut 2.5s ease 2.5s forwards;
+}
+
+.plane-fullscreen dotlottie-wc {
+    width: 80vw;
+    height: 80vh;
+}
+
+/* Зліт літака */
+@keyframes flyAcross {
+  0% {
+    transform: translate(-10%, 30%) scale(1);
+  }
+  50% {
+    transform: translate(40vw, -10vh) scale(1.2);
+  }
+  100% {
+    transform: translate(120vw, -30vh) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}

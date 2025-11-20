@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Доступ Заборонено (403)</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container error-page" style="text-align: center; margin-top: 50px;">
+        <h1 style="color: #dc3545;">Помилка 403</h1>
+        <h2>Доступ Заборонено</h2>
+        <p>У вас немає прав для перегляду цієї сторінки.</p>
+        
+        <br>
+        <a th:href="@{/}" class="button">На головну</a>
+    </div>
+</body>
+</html>

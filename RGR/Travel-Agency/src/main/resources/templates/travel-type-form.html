@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редагування Типу Туру</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2 th:text="${travelType.id() == null} ? 'Новий Тип Туру' : 'Редагувати Тип'"></h2>
+
+        <form th:action="@{/admin/travel-types/save}" th:object="${travelType}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div>
+                <label>Назва:</label>
+                <input type="text" th:field="*{name}" required />
+            </div>
+            <div>
+                <label>Опис:</label>
+                <textarea th:field="*{description}" rows="3"></textarea>
+            </div>
+
+            <br>
+            <button type="submit" class="button">Зберегти</button>
+            <a th:href="@{/travel-types}" class="button" style="background-color: #aaa;">Скасувати</a>
+        </form>
+    </div>
+</body>
+</html>

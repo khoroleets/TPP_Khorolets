@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Всі типи турів</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Список типів турів</h1>
+        
+        <div sec:authorize="hasRole('ADMIN')" style="margin-bottom: 15px;">
+            <a th:href="@{/admin/travel-types/form}" class="button admin-button">+ Додати тип туру</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th sec:authorize="hasRole('ADMIN')">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="type : ${allTypes}">
+                    <td th:text="${type.id()}">1</td>
+                    <td th:text="${type.name()}">Пляжний</td>
+                    <td th:text="${type.description()}">Відпочинок на морі</td>
+                    
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/travel-types/form(id=${type.id()})}" class="button" style="font-size: 0.8em;">Оновити</a>
+                        <form th:action="@{/admin/travel-types/delete/{id}(id=${type.id()})}" method="post" style="display:inline;"
+                              onsubmit="return confirm('Видалити цей тип туру?');">
+                            <button type="submit" class="button admin-button" style="font-size: 0.8em; background-color: #dc3545;">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br>
+        <a th:href="@{/}" class="button">На головну</a>
+    </div>
+</body>
+</html>
