@@ -4,8 +4,8 @@ services:
     image: "pgvector/pgvector:pg16"
     environment:
       - "POSTGRES_DB=travel_agency"
-      - "POSTGRES_PASSWORD=1"
-      - "POSTGRES_USER=postgres"
+	  - "POSTGRES_USER=${DB_LOGIN}"
+	  - "POSTGRES_PASSWORD=${DB_PASSWORD}"
     ports:
       - "5933:5432" # Зовнішній доступ (для адміністрування)
     networks:
@@ -17,9 +17,9 @@ services:
     ports:
       - "8086:8086" # Відкриваємо порт сайту назовні
     environment:
-      # Передаємо змінні середовища прямо тут
-      - DB_LOGIN=postgres
-      - DB_PASSWORD=1
+      # Передаємо змінні середовища
+	  - DB_LOGIN=${DB_LOGIN}
+	  - DB_PASSWORD=${DB_PASSWORD}
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/travel_agency
     depends_on:
       - postgres # Чекаємо, поки запуститься база
