@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import java.util.Base64;
 
@@ -15,23 +16,11 @@ public class SecurityConfig {
 
     /**
      * Бін для кодування паролів.
-     * Base64.
+     * BCrypt.
      */
-    @Bean
+	@Bean
     public PasswordEncoder passwordEncoder() {
-        
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return Base64.getEncoder().encodeToString(rawPassword.toString().getBytes());
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                String encodedRawPassword = Base64.getEncoder().encodeToString(rawPassword.toString().getBytes());
-                return encodedRawPassword.equals(encodedPassword);
-            }
-        };
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -81,5 +70,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
