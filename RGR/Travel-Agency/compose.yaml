@@ -11,7 +11,7 @@ services:
     networks:
       - travel-network
 
-  # Java Додаток
+  # Java додаток
   app:
     build: .  # Ця крапка означає "шукай Dockerfile у цій же папці"
     ports:
