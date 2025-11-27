@@ -1,12 +1,9 @@
-#
-1. download template
-- Use start.spring.io or manually
-2. Start DB via docker run in terminal
-   (if windows -> install WSL2)
-   (if no docker → [download](https://docs.rancherdesktop.io/getting-started/installation/), install, start)
-   ```
-   docker compose up
-   ```
-3. Configure DB Access in java app
-5. Init DB
-- sql file in sql_schema/db_init.sql
+Проєкт Travel Agency — це веб-застосунок на Java 21 та Spring Boot для керування туристичними даними, що використовує PostgreSQL та Docker.
+
+Система підтримує рольову модель: звичайні користувачі можуть лише переглядати тури, а адміністратори мають повний доступ до створення та редагування країн, типів подорожей і пропозицій. 
+
+Для запуску скомпілюйте проєкт командою mvn clean package, а потім виконайте docker-compose up --build, або ж просто запустіть головний клас через опцію "Run Application" у IDE.
+
+Застосунок буде доступний за адресою http://localhost:8086. 
+
+Для входу використовуйте логін admin або user (вводячи відповідний пароль).
