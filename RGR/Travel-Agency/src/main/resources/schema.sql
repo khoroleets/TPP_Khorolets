@@ -42,10 +42,10 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (username, password, role) VALUES
-('admin', 'YWRtaW5wYXNz', 'ROLE_ADMIN');
+('admin', '$2a$12$HAKU2AAvbaRzzxk72aZ.6e5r/KREzmmhV94lK2zVvUnEuBPTw6prS', 'ROLE_ADMIN');
 
 INSERT INTO users (username, password, role) VALUES
-('user', 'dXNlcnBhc3M=', 'ROLE_USER');
+('user', '$2a$12$a0CNvPzdQwpa8rJKDOTVMOnh2bjHm63Nh235x6RtXHkvB0jf6.cQO', 'ROLE_USER');
 
 -- Наповнюємо даними (Initial data)
 INSERT INTO travel_type (name, description) VALUES
