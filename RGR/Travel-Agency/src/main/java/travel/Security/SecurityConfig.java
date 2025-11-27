@@ -15,7 +15,7 @@ public class SecurityConfig {
 
     /**
      * Бін для кодування паролів.
-     * Ви просили Base64.
+     * Base64.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -81,4 +81,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }
