@@ -19,6 +19,8 @@ target/
 *.iml
 *.ipr
 
+RGR/Travel-Agency/.env
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
