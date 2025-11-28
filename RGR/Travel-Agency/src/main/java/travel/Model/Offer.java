@@ -11,12 +11,13 @@ public record Offer(
     @Id Integer id,
     String title,
     String description,
-    Integer travelTypeId, // З'єднається з `travel_type_id`
-    Integer countryId,    // З'єднається з `country_id`
+    Integer travelTypeId,
+    Integer countryId,
     BigDecimal price,
-    LocalDate startDate,  // З'єднається з `start_date`
-    LocalDate endDate,    // З'єднається з `end_date`
+    LocalDate startDate,
+    LocalDate endDate,
     Integer seats,
     Boolean available,
     LocalDateTime createdAt
+
 ) {}
