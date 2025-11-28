@@ -37,11 +37,16 @@ public class CliApp implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // Просто виводимо повідомлення, що сервер працює
+        System.out.println("--- Web Server Started (CLI disabled for Docker) ---");
+
+        /*
         System.out.println("\n--- CLI APP STARTED ---");
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
                 System.out.print("> ");
-                String line = scanner.nextLine().trim();
+                // У Docker тут стається помилка, бо немає введення
+                String line = scanner.nextLine().trim(); 
                 if (line.isEmpty()) continue;
                 if ("exit".equalsIgnoreCase(line)) break;
 
@@ -53,6 +58,7 @@ public class CliApp implements CommandLineRunner {
             }
         }
         System.out.println("--- CLI APP FINISHED ---");
+        */
     }
 
     private void executeCommand(String line) throws Exception {
@@ -103,7 +109,7 @@ public class CliApp implements CommandLineRunner {
         return params;
     }
 
-    // --- INSERT ---
+    // Додавання
     private void handleInsert(String entityName, Map<String, String> params) {
         switch (entityName) {
             case "country" -> {
@@ -147,7 +153,7 @@ public class CliApp implements CommandLineRunner {
         }
     }
 
-    // --- READ ---
+    // Читання
     private void handleRead(String entityName, Map<String, String> params) {
         switch (entityName) {
             case "country" -> {
@@ -175,7 +181,7 @@ public class CliApp implements CommandLineRunner {
         }
     }
 
-    // --- UPDATE ---
+    // Оновлення
     private void handleUpdate(String entityName, Map<String, String> params) {
         if (!params.containsKey("id")) {
             System.out.println("Update requires id parameter");
@@ -231,7 +237,7 @@ public class CliApp implements CommandLineRunner {
         }
     }
 
-    // --- DELETE ---
+    // Видалення
     private void handleDelete(String entityName, Map<String, String> params) {
         if (!params.containsKey("id")) {
             System.out.println("Delete requires id parameter");
@@ -255,7 +261,7 @@ public class CliApp implements CommandLineRunner {
         }
     }
 
-    // --- HELPERS ---
+    // Допоміжні
     private Integer parseInt(String s) {
         return s == null ? null : Integer.parseInt(s);
     }
