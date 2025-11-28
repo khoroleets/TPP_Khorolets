@@ -14,10 +14,8 @@ import java.util.Base64;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /**
-     * Бін для кодування паролів.
-     * BCrypt.
-     */
+     // Бін для кодування паролів - BCrypt. 
+
 	@Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
