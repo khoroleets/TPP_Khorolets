@@ -3,30 +3,28 @@ services:
   postgres:
     image: "pgvector/pgvector:pg16"
     environment:
-      - "POSTGRES_DB=travel_agency"
-	  - "POSTGRES_USER=${DB_LOGIN}"
-	  - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+      - POSTGRES_DB=travel_agency
+      - POSTGRES_USER=${DB_LOGIN}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - "5933:5432" # Зовнішній доступ (для адміністрування)
+      - "5933:5433"
     networks:
       - travel-network
 
   # Java додаток
   app:
-    build: .  # Ця крапка означає "шукай Dockerfile у цій же папці"
+    build: .
     ports:
-      - "8086:8086" # Відкриваємо порт сайту назовні
+      - "8086:8086"s
     environment:
-      # Передаємо змінні середовища
-	  - DB_LOGIN=${DB_LOGIN}
-	  - DB_PASSWORD=${DB_PASSWORD}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/travel_agency
+      - DB_LOGIN=${DB_LOGIN}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5433/travel_agency
     depends_on:
-      - postgres # Чекаємо, поки запуститься база
+      - postgres
     networks:
       - travel-network
 
-# Створюємо спільну мережу, щоб контейнери бачили один одного
 networks:
   travel-network:
     driver: bridge
