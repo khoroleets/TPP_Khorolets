@@ -1,11 +1,12 @@
-# 1. Беремо основу
-FROM eclipse-temurin:21-jdk
-
-# 2. Створюємо робочу папку всередині контейнера
+# Етап будівництва
+FROM maven:3.9.0-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# 3. Копіюємо наш скомпільований .jar файл всередину контейнера
-COPY target/*.jar app.jar
-
-# 4. Команда, яка запуститься при старті контейнера
+# Етап запуску
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
