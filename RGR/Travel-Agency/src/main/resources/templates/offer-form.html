@@ -9,7 +9,7 @@
     <div class="container">
         <h2 th:text="${offer.id() == null} ? 'Нова Пропозиція' : 'Редагувати Пропозицію'"></h2>
 
-        <form th:action="@{/admin/offers/save}" th:object="${offer}" method="post">
+        <form th:action="@{/admin/offers/save}" th:object="${offer}" method="post" onsubmit="return checkDate(event)">
             <input type="hidden" th:field="*{id}"/>
 
             <div>
@@ -47,7 +47,7 @@
 
             <div>
                 <label>Дата початку:</label>
-                <input type="date" th:field="*{startDate}" />
+                <input type="date" th:field="*{startDate}" id="startDate" />
             </div>
 
             <div>
@@ -70,5 +70,39 @@
             <a th:href="@{/offers}" class="button" style="background-color: #aaa;">Скасувати</a>
         </form>
     </div>
+
+	<script>
+	        function checkDate(event) {
+	            // Отримуємо значення, яке ввів адмін
+	            const dateInput = document.getElementById('startDate').value;
+	            
+	            // Якщо дата не обрана - нічого не перевіряємо
+	            if (!dateInput) return true;
+
+	            // Отримуємо сьогоднішню дату у форматі YYYY-MM-DD
+	            const today = new Date();
+	            const yyyy = today.getFullYear();
+	            // Місяці в JS від 0 до 11, тому +1. padStart додає нуль (05 замість 5)
+	            const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+	            const dd = String(today.getDate()).padStart(2, '0');
+	            
+	            const todayStr = `${yyyy}-${mm}-${dd}`; // наприклад "2025-11-28"
+
+	            // Порівнюємо
+	            if (dateInput === todayStr) {
+	                // Виводимо підтвердження
+	                const confirmed = confirm("Увага! Цей тур починається СЬОГОДНІ.\n\nВи впевнені, що хочете створити його на цю дату?");
+
+	                if (!confirmed) {
+	                    // Якщо натиснув "Скасувати" - блокуємо відправку форми
+	                    event.preventDefault(); 
+	                    return false;
+	                }
+	            }
+	            // Якщо натиснув ОК - форма відправляється далі
+	            return true;
+	        }
+	    </script>
+
 </body>
 </html>
