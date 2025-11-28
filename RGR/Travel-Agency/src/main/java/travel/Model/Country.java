@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 public record Country(
     @Id Integer id,
     String name,
-    String isoCode, // Автоматично з'єднається з `iso_code`
+    String isoCode,
     LocalDateTime createdAt
 ) {}
